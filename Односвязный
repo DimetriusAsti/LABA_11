@@ -1,0 +1,167 @@
+#include <iostream>
+#include <string>
+#include <fstream>
+using namespace std;
+
+struct Node {
+    string data;
+    Node* next;
+};
+
+// Функция добавления в конец
+void pushBack(Node*& head, string data) {
+    Node* new_node = new Node;
+    new_node->data = data;
+    new_node->next = nullptr;
+
+    if (head == nullptr) {
+        head = new_node;
+    }
+    else {
+        Node* current_node = head;
+        while (current_node->next != nullptr) {
+            current_node = current_node->next;
+        }
+        current_node->next = new_node;
+    }
+}
+
+// Функция добавления в начало
+void pushFront(Node*& head, string data) {
+    Node* new_node = new Node;
+    new_node->data = data;
+    new_node->next = head;
+    head = new_node;
+}
+
+// Функция удаления всех узлов с заданным значением
+void del(Node*& head, string data) {
+    while (head != nullptr && head->data == data) {
+        Node* temp = head;
+        head = head->next;
+        delete temp;
+    }
+    Node* curr = head;
+    while (curr != nullptr && curr->next != nullptr) {
+        if (curr->next->data == data) {
+            Node* temp = curr->next;
+            curr->next = curr->next->next;
+            delete temp;
+        }
+        else {
+            curr = curr->next;
+        }
+    }
+}
+
+// Функция печати списка
+void print(Node* head) {
+    Node* current_node = head;
+    if (current_node == nullptr) {
+        cout << "No data!" << endl;
+    }
+    while (current_node != nullptr) {
+        cout << " -| " << current_node->data << " |- ";
+        current_node = current_node->next;
+    }
+}
+
+// Функция удаления списка
+void clear(Node*& head) {
+    Node* del_node = head;
+    while (del_node != nullptr) {
+        Node* next_node = del_node->next;
+        delete del_node;
+        del_node = next_node;
+    }
+    head = nullptr;
+}
+
+// Функция записи структуры в файл
+void addToFile(const char* filename, Node* head) {
+    // Открытие файла для записи
+    ofstream File(filename);
+    // Запись в файл данных каждого узла
+    Node* current_node = head;
+    while (current_node != nullptr) {
+        File << current_node->data << endl;
+        current_node = current_node->next;
+    }
+    File.close();
+}
+
+// Функция восстановления структуры из файла
+void recover(const char* filename, Node*& head) {
+    // Очищаем текущий список перед восстановлением
+    clear(head);
+    // Открытие файла для чтения
+    ifstream File(filename);
+    string data;
+    while (getline(File, data)) {
+        pushBack(head, data);
+    }
+    File.close();
+}
+
+int main() {
+    Node* head = nullptr;
+    int k;
+    cout << "Elements num(k): ";
+    cin >> k;
+    cout << "---------------------------------" << endl;
+    cin.ignore();
+    string line;
+
+    // Добавление в конец
+    for (int i = 0; i < k; i++) {
+        cout << "Push Back element: ";
+        getline(cin, line);
+        pushBack(head, line);
+    }
+    cout << "---------------------------------" << endl;
+
+    // Добавление в начало
+    for (int i = 0; i < k; i++) {
+        cout << "Push Forward element: ";
+        getline(cin, line);
+        pushFront(head, line);
+    }
+    cout << "---------------------------------" << endl;
+
+    // Вывод заполненного списка
+    cout << "List: ";
+    print(head);
+    cout << endl;
+    cout << "---------------------------------" << endl;
+
+    // Удаление элемента
+    cout << "Delete element: ";
+    getline(cin, line);
+    del(head, line);
+    cout << "---------------------------------" << endl;
+
+    // Вывод обработанного списка
+    cout << "List: ";
+    print(head);
+    cout << endl;
+    cout << "---------------------------------" << endl;
+
+    //Запись в файл
+    cout << "Add data to file!" << endl;
+    addToFile("file.dat", head);
+    cout << "---------------------------------" << endl;
+
+    // Очищаем память
+    clear(head);
+    cout << "Cleared!" << endl;
+    cout << "---------------------------------" << endl;
+
+    // Восстановление данных
+    cout << "Restoring data from a file!" << endl;
+    recover("file.dat", head);
+    cout << "---------------------------------" << endl;
+    cout << "Recovered List: ";
+    print(head);
+    cout << endl;
+    return 0;
+}
